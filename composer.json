@@ -32,13 +32,17 @@
             }
         }
     },
+    "config": {
+        "platform": {
+            "php": "8.0"
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {
-        "phpmd/phpmd": "^2.15",
-        "larastan/larastan": "^2.8",
-        "orchestra/testbench": "^8.20",
-        "phpunit/phpunit": "^10.5"
+        "orchestra/testbench": "*",
+        "larastan/larastan": "*",
+        "phpunit/phpunit": "*"
     },
     "autoload-dev": {
         "psr-4": {
@@ -50,10 +54,8 @@
     },
     "scripts": {
         "post-autoload-dump": [
-            "@clear",
             "@prepare"
         ],
-        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
         "build": "@php vendor/bin/testbench workbench:build --ansi",
         "serve": [

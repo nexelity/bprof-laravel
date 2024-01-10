@@ -3,7 +3,6 @@
 namespace Nexelity\Bprof;
 
 use Illuminate\Database\Events\QueryExecuted;
-use Illuminate\Support\Collection;
 use Nexelity\Bprof\DTO\QueryTrace;
 use Str;
 
@@ -60,9 +59,9 @@ class LaravelBprofService
                 $binding = self::quoteStringBinding($event, $binding);
             }
 
-            $sql = (string) preg_replace(
+            $sql = (string)preg_replace(
                 pattern: $regex,
-                replacement: (string) $binding,
+                replacement: (string)$binding,
                 subject: $sql,
                 limit: 1
             );
@@ -90,11 +89,14 @@ class LaravelBprofService
 
         // Rebuild the stack trace as a formatted string.
         return $collection->map(static function (array $frame) {
-            return sprintf(
-                '%s:%s',
-                $frame['file'] ?? 'unknown_file',
-                $frame['line'] ?? '0'
-            );
+
+            /** @var string $line */
+            $line = $frame['line'] ?? '0';
+
+            /** @var string $file */
+            $file = $frame['file'] ?? 'unknown_file';
+
+            return sprintf('%s:%s', $file, $line);
         })->join(PHP_EOL);
     }
 

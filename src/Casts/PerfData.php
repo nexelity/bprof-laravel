@@ -5,9 +5,6 @@ namespace Nexelity\Bprof\Casts;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * @implements CastsAttributes<array, array>
- */
 class PerfData implements CastsAttributes
 {
     /**
@@ -17,7 +14,7 @@ class PerfData implements CastsAttributes
      * @param array<string, mixed> $attributes
      * @return array<string, mixed>
      */
-    public function get(Model $model, string $key, mixed $value, array $attributes): mixed
+    public function get($model, string $key, mixed $value, array $attributes)
     {
 
         if (!$value || !is_string($value)) {
@@ -44,7 +41,7 @@ class PerfData implements CastsAttributes
      * @param array<string, mixed> $attributes
      * @return string
      */
-    public function set(Model $model, string $key, mixed $value, array $attributes): string
+    public function set($model, string $key, mixed $value, array $attributes)
     {
         if (!$value) {
             throw new \RuntimeException('Performance data is empty.');

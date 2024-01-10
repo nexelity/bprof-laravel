@@ -59,6 +59,7 @@ class Trace extends Model
         'post', 'get', 'perfdata', 'queries', 'status_code',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'perfdata' => PerfData::class,
         'queries' => PerfData::class,
