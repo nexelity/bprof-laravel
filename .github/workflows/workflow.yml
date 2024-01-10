@@ -1,0 +1,37 @@
+name: PHP CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0' # Set the PHP version
+          coverage: xdebug
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run PHPUnit tests
+        run: vendor/bin/phpunit --coverage-clover=coverage.xml
+
+      - name: Run PHPStan tests
+        run: vendor/bin/phpstan.phar analyse src --memory-limit=512M
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
