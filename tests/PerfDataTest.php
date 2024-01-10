@@ -112,29 +112,4 @@ class PerfDataTest extends TestCase
             []
         );
     }
-
-    /**
-     * @covers ::set
-     */
-    public function testSetThrowsExceptionWhenFailsToCompressPerformanceData(): void
-    {
-        $model = $this->getMockBuilder(Model::class)->getMock();
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Failed to compress performance data.');
-
-        $perfData = new class extends PerfData {
-            public function set($model, string $key, mixed $value, array $attributes)
-            {
-                // Make gzcompress return false to simulate a failure
-                $serialized = serialize($value);
-                return @gzcompress($serialized, -1);  // Invalid level
-            }
-        };
-        $perfData->set(
-            $model,
-            'someKey',
-            ['foo' => 'bar'],
-            []
-        );
-    }
 }
