@@ -1,3 +1,5 @@
 vendor/
 workbench/
 .phpunit.result.cache
+.phpunit.cache/
+coverage.xml

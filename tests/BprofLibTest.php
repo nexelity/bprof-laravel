@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for BprofLib class.
+ * @coversDefaultClass \Nexelity\Bprof\BprofLib
  */
 class BprofLibTest extends TestCase
 {
@@ -24,7 +25,7 @@ class BprofLibTest extends TestCase
     /**
      * Tests initMetrics method.
      * Asserts if metrics are initialized properly, without any errors.
-     * @covers BprofLib::initMetrics
+     * @covers ::initMetrics
      */
     public function testInitMetrics(): void
     {
@@ -52,7 +53,7 @@ class BprofLibTest extends TestCase
     /**
      * Tests getPossibleMetrics methods.
      * Asserts if method returns expected possible metrics.
-     * @covers BprofLib::getPossibleMetrics
+     * @covers ::getPossibleMetrics
      */
     public function testGetPossibleMetrics(): void
     {
@@ -71,7 +72,7 @@ class BprofLibTest extends TestCase
     /**
      * Test to confirm that the getMetrics method
      * in BprofLib returns the correct metric array
-     * @covers BprofLib::getMetrics
+     * @covers ::getMetrics
      */
     public function testGetMetrics(): void
     {
@@ -106,7 +107,7 @@ class BprofLibTest extends TestCase
     }
 
     /**
-     * @covers BprofLib::parseParentChild
+     * @covers ::parseParentChild
      */
     public function testParseParentChild(): void
     {
@@ -122,7 +123,7 @@ class BprofLibTest extends TestCase
     }
 
     /**
-     * @covers BprofLib::computeFlatInfo
+     * @covers ::computeFlatInfo
      */
     public function testComputeFlatInfo()
     {
@@ -176,6 +177,7 @@ class BprofLibTest extends TestCase
      * 2. when a function call is part of the parent function but the parent function is not in the symbol table
      * 3. when a function call is part of the parent function and the parent function is also in the symbol table
      * 4. when a function call itself is the parent function
+     * @covers ::computeExclusiveMetrics
      */
     public function testComputeExclusiveMetrics(): void
     {
@@ -208,6 +210,10 @@ class BprofLibTest extends TestCase
     }
 
 
+    /**
+     * @return void
+     * @covers ::computeInclusiveTimes
+     */
     public function testComputeInclusiveTimes(): void
     {
         $perfData = [

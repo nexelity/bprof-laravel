@@ -21,6 +21,10 @@ class PerfDataTest extends TestCase
         $this->cast = new PerfData();
     }
 
+    /**
+     * @return void
+     * @covers \Nexelity\Bprof\Casts\PerfData::get
+     */
     #[Test]
     public function testGet(): void
     {
@@ -34,6 +38,10 @@ class PerfDataTest extends TestCase
         $this->assertEquals(['foo' => 'bar'], $result);
     }
 
+    /**
+     * @return void
+     * @covers \Nexelity\Bprof\Casts\PerfData::get
+     */
     #[Test]
     public function testGetNullValue(): void
     {
@@ -43,6 +51,10 @@ class PerfDataTest extends TestCase
         $this->cast->get($trace, '', null, []);
     }
 
+    /**
+     * @return void
+     * @covers \Nexelity\Bprof\Casts\PerfData::get
+     */
     #[Test]
     public function testGetUnzippedFailure(): void
     {
