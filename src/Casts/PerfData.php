@@ -26,7 +26,7 @@ class PerfData implements CastsAttributes
             throw new \RuntimeException('Failed to unzip performance data, it could be corrupted.');
         }
 
-        $unserialized = unserialize($unzipped, ['allowed_classes' => [\stdClass::class]]);
+        $unserialized = @unserialize($unzipped, ['allowed_classes' => [\stdClass::class]]);
         if (!$unserialized || !is_array($unserialized)) {
             throw new \RuntimeException('Failed to unserialize performance data, it could be corrupted.');
         }

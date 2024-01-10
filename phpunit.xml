@@ -21,7 +21,14 @@
     <coverage cacheDirectory=".phpunit.cache/code-coverage"
               processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">src</directory>
+            <directory suffix=".php">src/</directory>
         </include>
+        <exclude>
+            <directory>tests/</directory>
+            <directory>src/Console/</directory>
+            <directory>src/Http/</directory>
+            <directory>src/Models/</directory>
+            <directory>src/DTO/</directory>
+        </exclude>
     </coverage>
 </phpunit>

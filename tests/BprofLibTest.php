@@ -3,7 +3,8 @@
 namespace Tests;
 
 use Nexelity\Bprof\BprofLib;
-use PHPUnit\Framework\TestCase;
+use Orchestra\Testbench\TestCase;
+use Orchestra\Testbench\Concerns\WithWorkbench;
 
 /**
  * Tests for BprofLib class.
@@ -11,6 +12,8 @@ use PHPUnit\Framework\TestCase;
  */
 class BprofLibTest extends TestCase
 {
+    use WithWorkbench;
+
     /** @var BprofLib */
     private BprofLib $BprofLib;
 

@@ -6,62 +6,135 @@ use Nexelity\Bprof\Casts\PerfData;
 use Illuminate\Database\Eloquent\Model;
 use Nexelity\Bprof\Models\Trace;
 use Orchestra\Testbench\Concerns\WithWorkbench;
-use PHPUnit\Framework\Attributes\Test;
 use Orchestra\Testbench\TestCase;
 
+/**
+ * Tests for PerfDataTest class.
+ * @coversDefaultClass \Nexelity\Bprof\Casts\PerfData
+ */
 class PerfDataTest extends TestCase
 {
-
     use WithWorkbench;
 
-    private PerfData $cast;
-
-    protected function setUp(): void
-    {
-        $this->cast = new PerfData();
-    }
-
     /**
-     * @return void
-     * @covers \Nexelity\Bprof\Casts\PerfData::get
+     * @covers ::get
      */
-    #[Test]
     public function testGet(): void
     {
+        $cast = new PerfData();
         $model = $this->createMock(Model::class);
         $key = 'some_key';
         $value = gzcompress(serialize(['foo' => 'bar']));
         $attributes = [];
 
-        $result = $this->cast->get($model, $key, $value, $attributes);
+        $result = $cast->get($model, $key, $value, $attributes);
 
         $this->assertEquals(['foo' => 'bar'], $result);
     }
 
     /**
-     * @return void
-     * @covers \Nexelity\Bprof\Casts\PerfData::get
+     * @covers ::get
      */
-    #[Test]
-    public function testGetNullValue(): void
+    public function testGetUnzippedFailure(): void
     {
+        $cast = new PerfData();
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Performance data is empty or invalid.');
-        $trace = new Trace(['perf_data' => null]);
-        $this->cast->get($trace, '', null, []);
+        $this->expectExceptionMessage('Failed to unzip performance data, it could be corrupted.');
+        $cast->get(new Trace(), '', 'wrong_data', []);
     }
 
     /**
-     * @return void
-     * @covers \Nexelity\Bprof\Casts\PerfData::get
+     * @covers ::get
      */
-    #[Test]
-    public function testGetUnzippedFailure(): void
+    public function testGetUnserializedFailure(): void
     {
+        $cast = new PerfData();
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Failed to unzip performance data, it could be corrupted.');
-        $trace = new Trace(['perf_data' => 'zzzzz']);
-        $this->cast->get($trace, '', 'wrong_data', []);
+        $this->expectExceptionMessage('Failed to unserialize performance data, it could be corrupted.');
+        $cast->get(new Trace(), '', base64_decode('eJzLSM3JyTc0MgYADZUCqw=='), []);
     }
 
+    /**
+     * @covers ::get
+     */
+    public function testGetEmptyValue(): void
+    {
+        $cast = new PerfData();
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Performance data is empty or invalid.');
+        $cast->get(new Trace(), '', '', []);
+    }
+
+    /**
+     * @covers ::get
+     */
+    public function testGetNullValue(): void
+    {
+        $cast = new PerfData();
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Performance data is empty or invalid.');
+        $cast->get(new Trace(), '', null, []);
+    }
+
+    /**
+     * @covers ::set
+     */
+    public function testSetSuccessfullyCompressesPerformanceData(): void
+    {
+        $cast = new PerfData();
+        $model = $this->getMockBuilder(Model::class)->getMock();
+        $sampleData = ['foo' => 'bar'];
+
+        $result = $cast->set(
+            $model,
+            'someKey',
+            $sampleData,
+            []
+        );
+
+        $this->assertIsString($result);
+    }
+
+    /**
+     * @covers ::set
+     */
+    public function testSetThrowsExceptionWhenPerformanceDataIsEmpty(): void
+    {
+        $cast = new PerfData();
+        $model = $this->getMockBuilder(Model::class)->getMock();
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Performance data is empty.');
+
+        $cast->set(
+            $model,
+            'someKey',
+            null,
+            []
+        );
+    }
+
+    /**
+     * @covers ::set
+     */
+    public function testSetThrowsExceptionWhenFailsToCompressPerformanceData(): void
+    {
+        $model = $this->getMockBuilder(Model::class)->getMock();
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Failed to compress performance data.');
+
+        $perfData = new class extends PerfData {
+            public function set($model, string $key, mixed $value, array $attributes)
+            {
+                // Make gzcompress return false to simulate a failure
+                $serialized = serialize($value);
+                return @gzcompress($serialized, -1);  // Invalid level
+            }
+        };
+        $perfData->set(
+            $model,
+            'someKey',
+            ['foo' => 'bar'],
+            []
+        );
+    }
 }
