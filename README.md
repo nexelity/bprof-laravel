@@ -26,7 +26,7 @@ Uncover bottlenecks, memory hogs, and performance insights in your Laravel PHP c
 3. Linux or macOS (Windows is not supported)
 4. `bprof-ext` php extension installed. See [here](https://github.com/nexelity/bprof-ext).
 5. `bprof-viewer` installed and running. See [here](https://github.com/nexelity/bprof-viewer/).
-6Eloquent compatible database (MySQL, PostgreSQL, SQLite, SQL Server)
+6. Eloquent compatible database (MySQL, PostgreSQL, SQLite, SQL Server)
 
 
 ##  🚀 Installation
