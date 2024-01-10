@@ -1,0 +1,9 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+parameters:
+    level: 9
+    phpVersion: 80000
+    scanFiles:
+        - bprof.stubs.php
+    paths:
+        - src
