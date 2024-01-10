@@ -21,7 +21,10 @@ jobs:
           coverage: xdebug
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer install --dev --prefer-dist --no-progress
+
+      - name: Setup workbench
+        run: vendor/bin/testbench workbench:install
 
       - name: Run PHPUnit tests
         run: vendor/bin/phpunit --coverage-clover=coverage.xml
