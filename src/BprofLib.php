@@ -161,15 +161,18 @@ class BprofLib
         }
     }
 
-
     /**
-     * Computes the inclusive times and call count for each function in the given performance data.
+     * Compute inclusive metrics for function. This code was factored out
+     * of bprof_compute_flat_info().
      *
-     * @param array $perfdata The performance data containing parent-child relationships and metrics.
+     * The raw data contains inclusive metrics of a function for each
+     * unique parent function it is called from. The total inclusive metrics
+     * for a function is therefore the sum of inclusive metrics for the
+     * function across all parents.
      *
-     * @return array The computed inclusive times and call count for each function.
-     * @throws RuntimeException If the parent and child are the same.
-     *
+     * @param array<string, array<string, numeric>> $perfdata bprof format raw profiler data.
+     * @return array<string, array<string, numeric>> Returns a map of function name to total (across all parents) inclusive metrics for the function.
+     * @covers BprofLib::computeInclusiveTimes
      */
     public function computeInclusiveTimes(array $perfdata): array
     {
