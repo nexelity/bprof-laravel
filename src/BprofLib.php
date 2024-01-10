@@ -9,7 +9,7 @@ use RuntimeException;
  */
 class BprofLib
 {
-    /** @var null|string[] */
+    /** @var string[] */
     private array $metrics = [];
 
     /**
@@ -219,11 +219,5 @@ class BprofLib
 
         return $symbolTab;
     }
-
-    public function getMetricsVar(): array
-    {
-        return $this->metrics;
-    }
-
 
 }
