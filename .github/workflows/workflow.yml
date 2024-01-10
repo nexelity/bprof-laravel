@@ -8,30 +8,21 @@ on:
 
 jobs:
   build:
-
+    name: PHP 8.0
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
-
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.0' # Set the PHP version
           coverage: xdebug
-
       - name: Install dependencies
         run: composer install --dev --prefer-dist --no-progress
-
-      - name: Setup workbench
-        run: vendor/bin/testbench workbench:install
-
       - name: Run PHPUnit tests
         run: vendor/bin/phpunit --coverage-clover=coverage.xml
-
       - name: Run PHPStan tests
         run: vendor/bin/phpstan.phar analyse src --memory-limit=512M
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:

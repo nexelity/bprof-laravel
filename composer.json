@@ -40,9 +40,9 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {
-        "orchestra/testbench": "*",
-        "larastan/larastan": "*",
-        "phpunit/phpunit": "*"
+        "orchestra/testbench": "^6.41",
+        "larastan/larastan": "^1.0.4",
+        "phpunit/phpunit": "^9.6.15"
     },
     "autoload-dev": {
         "psr-4": {
@@ -57,10 +57,8 @@
             "@prepare"
         ],
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
-        "build": "@php vendor/bin/testbench workbench:build --ansi",
         "serve": [
             "Composer\\Config::disableProcessTimeout",
-            "@build",
             "@php vendor/bin/testbench serve"
         ],
         "lint": [
