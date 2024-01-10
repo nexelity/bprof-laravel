@@ -70,7 +70,13 @@ class Trace extends Model
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
+    }
 
+    /**
+     * Swap the DB connection to the details defined by the config
+     * @return void
+     */
+    public function swapConnection(): void {
         // Set the table name from config
         $table = config('bprof.db_table');
         if ($table && is_string($table)) {

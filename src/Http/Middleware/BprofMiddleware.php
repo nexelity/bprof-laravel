@@ -21,8 +21,10 @@ class BprofMiddleware
      */
     protected static function requestIsToApprovedUri(Request $request): bool
     {
+        /** @var string[] $ignoredPaths */
+        $ignoredPaths = config('bprof.ignored_paths', []);
         return !$request->is(
-            ... config('bprof.ignored_paths', [])
+            ... $ignoredPaths
         );
     }
 
@@ -67,7 +69,7 @@ class BprofMiddleware
         $bprof = app()->make(BprofLib::class);
 
         // Initialize metrics
-        $bprof->initMetrics($perfdata, null, null);
+        $bprof->initMetrics($perfdata);
 
         // Compute flat info
         $totals = [];
@@ -76,6 +78,25 @@ class BprofMiddleware
         // Get queries
         $queries = LaravelBprofService::$queries;
         LaravelBprofService::$queries = [];
+
+        /** @var array<string> $excludedParams */
+        $excludedParams = config('bprof.excluded_params', ['password']);
+
+        // Get post params
+        $post = $request->post();
+        if (is_array($post)) {
+            $post = collect($post)
+                ->except($excludedParams)
+                ->toArray();
+        }
+
+        // Get query params
+        $get = $request->query();
+        if (is_array($get)) {
+            $get = collect($get)
+                ->except($excludedParams)
+                ->toArray();
+        }
 
         // Save trace
         $trace = Trace::create([
@@ -89,26 +110,23 @@ class BprofMiddleware
             'cpu' => $totals['cpu'],
             'server_name' => config('bprof.server_name'),
             'cookie' => serialize($request->cookie()),
-            'post' => serialize(
-                collect($request->post())
-                    ->except(config('bprof.excluded_params', ['password']))
-                    ->toArray()
-            ),
-            'get' => serialize(
-                collect($request->query())
-                    ->except(config('bprof.excluded_params', ['password']))
-                    ->toArray()
-            ),
+            'post' => serialize($post),
+            'get' => serialize($get),
             'queries' => array_map(static fn(QueryTrace $query) => $query->toArray(), $queries),
-            'user_id' => Auth::id(),
+            'user_id' => auth()->id(),
             'ip' => $request->ip(),
         ]);
 
-        // Add header
-        $response->headers->set(
-            'X-Bprof-Url',
-            sprintf('%s/trace/?id=%s', config('bprof.viewer_url'), $trace->uuid)
-        );
+        // If we have a viewer url provided, add the trace URL to the response headers
+        /** @var string $viewerUrl */
+        $viewerUrl = config('bprof.viewer_url');
+        if ($viewerUrl) {
+            // Add header
+            $response->headers->set(
+                'X-Bprof-Url',
+                sprintf('%s/trace/?id=%s', $viewerUrl, $trace->uuid)
+            );
+        }
 
         return $response;
     }

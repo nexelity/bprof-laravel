@@ -9,11 +9,12 @@ use RuntimeException;
  */
 class BprofLib
 {
-    /** @var string[] */
-    private array $metrics;
+    /** @var null|string[] */
+    private array $metrics = [];
 
     /**
      * Initialize the metrics array.
+     * @param array<string, array<string, numeric>> $perfdata bprof format raw profiler data.
      */
     public function initMetrics(array $perfdata): void
     {
@@ -27,7 +28,7 @@ class BprofLib
         }
     }
 
-    /*
+    /**
      * The list of possible metrics collected as part of bprof that
      * require inclusive/exclusive handling while reporting.
      * @return array<string, string[]> Returns a map from metric name to metric description.
@@ -47,7 +48,7 @@ class BprofLib
 
     /**
      * Returns an array of metrics that are present in the raw data.
-     * @return array<string> Returns a list of metric names.
+     * @return array<string, numeric> Returns a list of metric names.
      */
     private function emptyTotals(): array
     {
@@ -63,19 +64,19 @@ class BprofLib
         ];
     }
 
-    /*
+    /**
      * Get the list of metrics present in $bprof_data as an array.
+     * @param array<string, array<string, numeric>> $perfdata bprof format raw profiler data.
      * @return array<string> Returns a list of metric names.
      */
     public function getMetrics(array $perfdata): array
     {
         // get list of valid metrics
-        $possible_metrics = $this->getPossibleMetrics();
+        $possibleMetrics = $this->getPossibleMetrics();
 
         // return those that are present in the raw data.
         // We'll just look at the root of the subtree for this.
-        $this->metrics = [];
-        foreach ($possible_metrics as $metric => $desc) {
+        foreach ($possibleMetrics as $metric => $desc) {
             if (isset($perfdata['main()'][$metric])) {
                 $this->metrics[] = $metric;
             }
@@ -109,9 +110,9 @@ class BprofLib
     /**
      * Analyze hierarchical raw data, and compute per-function (flat) inclusive and exclusive metrics.
      * Also, store overall totals in the 2nd argument.
-     * @param array $perfdata bprof format raw profiler data.
-     * @param array  &$totals OUT argument for returning overall totals for various metrics.
-     * @return array Returns a map from function name to its call count and inclusive & exclusive metrics (such as wall time, etc.).
+     * @param array<string, array<string, numeric>> $perfdata bprof format raw profiler data.
+     * @param array<string> &$totals overall totals for various metrics.
+     * @return array<string, array<string, numeric>> Returns a map from function name to its call count and inclusive & exclusive metrics (such as wall time, etc.).
      */
     public function computeFlatInfo(array $perfdata, array &$totals): array
     {
@@ -123,13 +124,24 @@ class BprofLib
             $totals[$metric] = $symbolTab['main()'][$metric];
         }
 
-        $this->computeExclusiveMetrics($symbolTab, $totals, $perfdata);
+        $this->computeExclusiveMetrics($perfdata, $symbolTab, $totals);
 
         return $symbolTab;
     }
 
-    private function computeExclusiveMetrics(array &$symbolTab, array &$totals, array $perfdata): void
+    /**
+     * @param array<string, array<string, numeric>> $perfdata
+     * @param array<string, array<string, numeric>> $symbolTab
+     * @param array<string> &$totals
+     * @return void
+     */
+    public function computeExclusiveMetrics(array $perfdata, array &$symbolTab, array &$totals): void
     {
+
+        if (empty($this->metrics)) {
+            $this->metrics = $this->getMetrics($perfdata);
+        }
+
         foreach ($symbolTab as $symbol => $info) {
             foreach ($this->metrics as $metric) {
                 $symbolTab[$symbol]['excl_' . $metric] = $symbolTab[$symbol][$metric];
@@ -158,13 +170,15 @@ class BprofLib
      * for a function is therefore the sum of inclusive metrics for the
      * function across all parents.
      *
-     * @return array  Returns a map of function name to total (across all parents) inclusive metrics for the function.
-     *
+     * @param array<string, array<string, numeric>> $perfdata bprof format raw profiler data.
+     * @return array<string, array<string, numeric>> Returns a map of function name to total (across all parents) inclusive metrics for the function.
+     * @covers BprofLib::computeInclusiveTimes
      */
     public function computeInclusiveTimes(array $perfdata): array
     {
-        $this->metrics = $this->getMetrics($perfdata);
-
+        if (empty($this->metrics)) {
+            $this->metrics = $this->getMetrics($perfdata);
+        }
         $symbolTab = [];
 
         /*
@@ -205,5 +219,11 @@ class BprofLib
 
         return $symbolTab;
     }
+
+    public function getMetricsVar(): array
+    {
+        return $this->metrics;
+    }
+
 
 }

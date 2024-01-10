@@ -45,7 +45,7 @@ class LaravelBprofService
     public static function replaceBindings(QueryExecuted $event): string
     {
         $sql = $event->sql;
-        if (!$sql) {
+        if (!$sql || !is_string($sql)) {
             return $sql;
         }
 
@@ -60,7 +60,7 @@ class LaravelBprofService
                 $binding = self::quoteStringBinding($event, $binding);
             }
 
-            $sql = preg_replace(
+            $sql = (string) preg_replace(
                 pattern: $regex,
                 replacement: (string) $binding,
                 subject: $sql,
@@ -73,9 +73,8 @@ class LaravelBprofService
 
     /**
      * @param int $forgetLines skip the first N lines of the stack trace
-     * @return Collection the stack trace
      */
-    protected static function getStackTrace(int $forgetLines = 0): Collection
+    protected static function getStackTrace(int $forgetLines = 0): string
     {
         // Get the stack trace.
         $trace = collect(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS))->forget($forgetLines);
@@ -90,18 +89,30 @@ class LaravelBprofService
         });
 
         // Rebuild the stack trace as a formatted string.
-        return $collection->map(function ($frame) {
-            return $frame['file'] . ':' . $frame['line'];
+        return $collection->map(static function (array $frame) {
+            return sprintf(
+                '%s:%s',
+                $frame['file'] ?? 'unknown_file',
+                $frame['line'] ?? '0'
+            );
         })->join(PHP_EOL);
     }
 
+    /**
+     * @return string[]
+     */
     protected static function ignoredPackages(): array
     {
-        return config('bprof.ignored_paths', []);
+        $ignoredPackages = config('bprof.ignored_packages', []);
+        if (!is_array($ignoredPackages)) {
+            throw new \RuntimeException('The ignored_packages config value must be an array.');
+        }
+        return $ignoredPackages;
     }
 
     /**
      * Format the given bindings to strings.
+     * @return array<int|string, string|float|int|null>
      */
     protected static function formatBindings(QueryExecuted $event): array
     {

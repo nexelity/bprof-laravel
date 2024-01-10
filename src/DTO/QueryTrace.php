@@ -27,6 +27,9 @@ class QueryTrace
     public string $connection;
     public string $stack;
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

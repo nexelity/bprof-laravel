@@ -21,8 +21,8 @@ Uncover bottlenecks, memory hogs, and performance insights in your Laravel PHP c
 - 🚀 Speed up your PHP applications!
 
 ## ⚙️ Pre-requisites
-1. PHP `>=8.0`
-2. Laravel `>=8.0`
+1. PHP `>=8.0` and `ext-zlib` extension enabled.
+2. Laravel `>=8.40`
 3. Linux or macOS (Windows is not supported)
 4. `bprof-ext` php extension installed. See [here](https://github.com/nexelity/bprof-ext).
 5. `bprof-viewer` installed and running. See [here](https://github.com/nexelity/bprof-viewer/).
