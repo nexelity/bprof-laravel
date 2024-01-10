@@ -1,6 +1,8 @@
 {
     "name": "nexelity/bprof-laravel",
     "description": "A Laravel wrapper for the PHP bprof profiler extension ",
+    "license": "Apache-2.0",
+    "type": "library",
     "keywords": [
         "laravel",
         "bprof"
