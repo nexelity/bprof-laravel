@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Nexelity\Bprof\BprofLib;
 use Nexelity\Bprof\DTO\QueryTrace;
-use Nexelity\Bprof\LaravelBprofService;
 use Nexelity\Bprof\Models\Trace;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,9 +49,6 @@ class BprofMiddleware
             throw new RuntimeException('BProf extension is not loaded');
         }
 
-        // Reset queries
-        LaravelBprofService::$queries = [];
-
         // Start profiling
         bprof_enable();
 
@@ -74,10 +70,6 @@ class BprofMiddleware
         // Compute flat info
         $totals = [];
         $bprof->computeFlatInfo($perfdata, $totals);
-
-        // Get queries
-        $queries = LaravelBprofService::$queries;
-        LaravelBprofService::$queries = [];
 
         /** @var array<string> $excludedParams */
         $excludedParams = config('bprof.excluded_params', ['password']);
@@ -112,7 +104,6 @@ class BprofMiddleware
             'cookie' => serialize($request->cookie()),
             'post' => serialize($post),
             'get' => serialize($get),
-            'queries' => array_map(static fn(QueryTrace $query) => $query->toArray(), $queries),
             'user_id' => auth()->id(),
             'ip' => $request->ip(),
         ]);

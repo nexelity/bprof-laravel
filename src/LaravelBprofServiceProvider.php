@@ -34,15 +34,6 @@ class LaravelBprofServiceProvider extends ServiceProvider
         // Publish migrations
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
-        // Bind to events
-        Event::listen(QueryExecuted::class, static function (QueryExecuted $event) {
-            LaravelBprofService::handleQueryExecutedEvent(
-                type: 'sql',
-                connection: $event->connection->getName(),
-                query: LaravelBprofService::replaceBindings($event),
-                time: $event->time
-            );
-        });
     }
 
     /**

@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('server_name');
             $table->boolean('ajax')->default(false);
             $table->longText('perfdata');
-            $table->longText('queries')->nullable();
             $table->longText('cookie');
             $table->longText('post');
             $table->longText('get');
